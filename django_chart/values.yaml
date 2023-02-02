@@ -1,0 +1,56 @@
+# Default values for django_chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+container:
+  name: django_app
+  port: 8000
+
+image:
+  name: piblokto/django_app:latest
+
+configmap:
+  metadata:
+    name: env_vars
+  DJANGO_ALLOWED_HOSTS: "*"
+
+#postgres://<USERNAME>:<PASSWORD>@<HOSTNAME>:5432/<DATABASE>
+connectionstring:
+  username: postgres
+  hostname: ""
+  database: djangodb
+
+secrets:
+  metadata:
+    name: django_secrets
+
+deployment:
+  metadata:
+    name: django_deployment
+  replicas: 2
+
+pod:
+  metadata:
+    app: django_app
+
+service:
+  metadata:
+    name: django_service
+  port: 8080
+  targetport: 8000
+
+ingress:
+  metadata:
+    name: django-ingress
+  ingressClassName: alb
+  host: "piblokto.org"
+  pathType: Prefix
+  certArn: arn:aws:acm:us-east-1:056201179630:certificate/8e8bf82d-a81c-495c-8812-b0937ecee401
+
+hpa:
+  metadata:
+    name: "django-hpa"
+  min: 2
+  max: 4
+  cpu: 80
+  mem: 80

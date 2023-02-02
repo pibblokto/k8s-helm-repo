@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployment.metadata.name }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.pod.metadata.app }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.pod.metadata.app }}
+    spec:
+      containers:
+      - name: {{ .Values.container.name }}
+        image: {{ .Value.image.name }}
+        ports:
+        - containerPort: {{ .Values.container.port }}
+        env:
+        - name: DJANGO_ALLOWED_HOSTS
+          valueFrom:
+            configMapKeyRef:
+              name: {{ .Values.config.metadata.name }}
+              key: DJANGO_ALLOWED_HOSTS
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.secrets.metadata.name }}
+              key: DATABASE_URL
+        livenessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.container.port }}
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.container.port }}
+          initialDelaySeconds: 5
+          periodSeconds: 5
